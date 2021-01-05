@@ -1,5 +1,5 @@
 # obesity-level
-# I used pyspark for large dataset since it will process the data in distributed and parallel way, copied the code in bmipyspark.txt
+# I used below pyspark code since it will process the large dataset in distributed and parallel way. when we compared to normal python, pyspark exectuion time is much faster because of parallel and distributed computation, copied the code in bmipyspark.txt
 
 
 from pyspark.sql import SparkSession
