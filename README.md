@@ -1,1 +1,67 @@
 # obesity-level
+# i used pyspark for large dataset since it will process the data in distributed and parallel way
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.types import ArrayType, StructField, StructType, StringType, IntegerType
+
+import pyspark.sql.functions as F
+
+appName = "PySparkbmicalculator"
+master = "local"
+
+spark = SparkSession.builder \
+    .appName(appName) \
+    .master(master) \
+    .getOrCreate()
+
+schema = StructType([
+    StructField('Gender', StringType(), True),
+    StructField('HeightCm', IntegerType(), True),
+    StructField('WeightKg', IntegerType(), True)
+])
+
+#json data in exampl.json file
+json_file = 'example.json'
+df = spark.read.json(json_file, schema, multiLine=True)
+
+#function to calculate bmi things
+
+def funcc(h,m):
+	bmi = (m/(h*h))*10000
+	if ( bmi <= 18.4):
+   		return Row('BMI Category','BMI Range','Health risk')('Underweight','18.4 and below','malnutrition risk')
+	elif ( bmi >= 18.5 and bmi <= 24.9):
+   		return Row('BMI Category','BMI Range','Health risk')('Normal weight','18.5 - 24.9','low risk')
+	elif ( bmi >= 25 and bmi <= 29.9):
+   		return Row('BMI Category','BMI Range','Health risk')('Overweight','25 - 29.9','enhanced risk')
+	elif ( bmi >= 30 and bmi <= 34.9):
+   		return Row('BMI Category','BMI Range','Health risk')('Moderately obese','30 - 34.9','medium risk')
+	elif ( bmi >=35 and bmi <= 39.9):
+   		return Row('BMI Category','BMI Range','Health risk')('Severely obese','35 - 39.9','High risk')
+
+#schema for return type in above function
+
+sche = StructType([
+    StructField('BMI Category', StringType(), True),
+    StructField('BMI Range', StringType(), True),
+    StructField('Health risk', StringType(), True)
+])
+
+#usage of user defined function in pyspark
+
+udffun = F.udf(funcc, sche)
+
+#calling user defined function
+
+newDF = df.withColumn("newCol", udffun(df("HeightCm","WeightKg")))
+
+
+#adding three columns in dataframe so total 6 columns
+newDF = newDF.select($"Gender", $"HeightCm", $"WeightKg", $"newCol"(0).as("BMI Category"), $"newCol"(1).as("BMI Range (kg/m2)"), $"newCol"(2).as("Health risk"))
+
+newDF.show()
+
+#count of overweight people
+
+newDF.filter(newDF["BMI Category"]=="Overweight").count()  
