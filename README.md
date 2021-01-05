@@ -1,5 +1,5 @@
 # obesity-level
-# i used pyspark for large dataset since it will process the data in distributed and parallel way
+# I used pyspark for large dataset since it will process the data in distributed and parallel way, copied the code in bmipyspark.txt
 
 
 from pyspark.sql import SparkSession
