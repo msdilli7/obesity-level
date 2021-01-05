@@ -41,7 +41,6 @@ sche = StructType([
 ])
 
 udffun = F.udf(funcc, sche)
-dfwithbmi = df.withColumn("result",udffun("HeightCm","WeightKg"))
 
 newDF = df.withColumn("newCol", udffun(df("HeightCm","WeightKg")))
 newDF = newDF.select($"Gender", $"HeightCm", $"WeightKg", $"newCol"(0).as("BMI Category"), $"newCol"(1).as("BMI Range (kg/m2)"), $"newCol"(2).as("Health risk"))
